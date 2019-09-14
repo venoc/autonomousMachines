@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Turbine</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Turbine</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+        aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h1 class="mt-5">Turbine</h1>
+        <video height="300px" id="preview"></video>
+        <input id="root" class="form-control" type="text" placeholder="Root">
+        <p></p>
+        <input id="key" class="form-control" type="password" placeholder="Key">
+        <p></p>
+        <button id="getData" class="btn btn-primary">Get Data</button>
+        <p></p>
+        <pre id="address"> </pre>
+        <pre style="font-size: large; font-weight: bold" id="value"> </pre>
+        <pre id="data"></pre>
+        <ul class="list-unstyled">
+        </ul>
+        <table id="table" class="table" style="max-width: 480px; margin: auto; margin-bottom: 30px">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">power</th>
+              <th scope="col">timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="load">
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+  <script>
+
+    $("#load").hide();
+    // ###################
+    //Place your IP here
+    let ip = "localhost";
+    let address, value, seed, data;
+    seed = "SEEDC9999999999999999999999999999999999999999999999999999999999999999999999999999";
+    data = {
+      "seed": seed,
+      "to": address,
+      "value": 10,
+      "tag": "SUPERCHARGER",
+      "message": "I NEED SOME STROM"
+    };
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    scanner.addListener('scan', function (content) {
+      if (content.charAt(0) == '"' && content.charAt(content.length - 1 == '"'))
+        content = content.substr(1).slice(0, -1);
+      content = JSON.parse(content);
+      $("#root").val(content.root);
+      $("#key").val(content.key);
+      getData();
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+      if (cameras.length > 0) {
+        scanner.start(cameras[0]);
+      } else {
+        console.error('No cameras found.');
+      }
+    }).catch(function (e) {
+      console.error(e);
+    });
+
+    $(document).ready(function () {
+      $("#getData").click(function () {
+
+      });
+    });
+    $("#hash").value = "test";
+
+
+    function getData() {
+      $("#load").show();
+      let data = {};
+      data.root = $("#root").val();
+      data.key = $('#key').val();
+      $("#data").html("");
+      $.ajax({
+        type: "GET",
+        headers: {
+          'Accept': 'text/plain',
+        },
+        //    dataType: "json",
+        url: "http://" + ip + ":3000/api/mamFetch",
+        data: data,
+        success: function (data) {
+          $("#address").html("Address: " + JSON.parse(data[0]).address);
+          address = JSON.parse(data[0]).address;
+          getBalance();
+          for (let i = 0; i < data.length; i++) {
+            $('#table').find('tbody:last').append('<tr><th scope="row">' + (i + 1) + '</th><td> ' + JSON.parse(data[i]).power + '</td><td> ' + JSON.parse(data[i]).timestamp + '</td></tr>');
+          }
+          $("#load").hide();
+        }
+      });
+    }
+
+    async function getBalance() {
+      $.ajax({
+        type: "GET",
+        headers: {
+          'Accept': 'text/plain',
+        },
+        url: "http://" + ip + ":3000/api/getBalance",
+        data: { "address": address },
+        success: function (data) {
+          $("#value").html("Value: " + data);
+        }
+      });
+    }
+
+
+    $("#getData").click(function () {
+      getData();
+    });
+
+
+  </script>
+
+</body>
+
+</html>
