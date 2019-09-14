@@ -1,4 +1,4 @@
-# Tanglizer
+# Economous Machines
 ## Set up
 ### IOTA-Network
 For testing:
@@ -75,10 +75,9 @@ Folgende Punkte müssen auf der Konsole im Ordner prototyp ausgeführt werden.
 3. If your Node is running on other ports than set before, change it also in ./iota/config.json
 3. Set your the IP of your IOTA-Node in the ./index.html, if you use a IOTA-Node, wich is not set up like shown, the seed has also to be updated
 4. Start the IOTA-Hub ```cd iota && node server.js ```
-5. Start the Frontend ```cd frontend && http-server ```
+5. Start the Frontend of the charger and the turbine ```cd charger_frontend && http-server ``` ```cd turbine_frontend && http-server ```
 
-
-
+ 
 ### Usage
-Use the web based interface on http://localhost:8080
+Use the web based interface on http://localhost:8080 and http://localhost:8081
 
